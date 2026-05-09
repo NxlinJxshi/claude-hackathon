@@ -39,3 +39,15 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# python / manim runtime
+__pycache__/
+*.pyc
+media/
+manimations/
+
+# runtime-rendered videos (regenerated on demand)
+/public/rendered/
+
+# tooling caches
+.playwright-mcp/
