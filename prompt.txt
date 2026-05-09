@@ -16,4 +16,6 @@ Requirements:
 - Total animation length should be 45 to 60 seconds
 - Use color constants: BLUE, RED, GREEN, YELLOW, WHITE
 - Every object must be added to the scene before animating it
+- The very first line of your Python script must be a comment in this exact format:
+  # CONCEPT: <one sentence describing the mathematical concept being animated>
 - Return ONLY raw Python code, no markdown, no explanation, no code fences

@@ -53,7 +53,9 @@ export async function POST(request: NextRequest) {
     const textBlock = message.content.find((b) => b.type === 'text');
     const manim_code = textBlock && textBlock.type === 'text' ? textBlock.text : '';
 
-    return Response.json({ manim_code });
+    const explanation = manim_code.match(/^# CONCEPT: (.+)$/m)?.[1] ?? '';
+
+    return Response.json({ manim_code, explanation });
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error';
     return Response.json({ error: message }, { status: 500 });
