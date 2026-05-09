@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import { execSync } from 'child_process';
-import { writeFileSync, copyFileSync, mkdirSync, existsSync } from 'fs';
+import { writeFileSync, copyFileSync, mkdirSync, existsSync, readdirSync, statSync, unlinkSync } from 'fs';
 import { join } from 'path';
 import { randomUUID } from 'crypto';
 
@@ -43,6 +43,20 @@ export async function POST(request: NextRequest) {
     const publicDir = join(cwd, 'public', 'rendered');
     mkdirSync(publicDir, { recursive: true });
     copyFileSync(outputMp4, join(publicDir, `${id}.mp4`));
+
+    // Clean up render files older than 1 hour
+    try {
+      const now = Date.now();
+      const oneHour = 60 * 60 * 1000;
+      for (const file of readdirSync(publicDir)) {
+        const fp = join(publicDir, file);
+        if (now - statSync(fp).mtimeMs > oneHour) {
+          unlinkSync(fp);
+        }
+      }
+    } catch {
+      // non-fatal
+    }
 
     return Response.json({ video_url: `/rendered/${id}.mp4` });
   } catch (err) {

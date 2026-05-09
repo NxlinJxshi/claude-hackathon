@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface ResultScreenProps {
   manim_code: string;
@@ -165,7 +165,32 @@ function SourceCard({
 }
 
 export default function ResultScreen({ manim_code, explanation, confidenceScore, confidenceReason, confidenceFlag, conceptName, resourceUrl, resourceTitle, onReset }: ResultScreenProps) {
-  const originalVideoUrl = getVideoSrc(manim_code);
+  const [originalVideoUrl, setOriginalVideoUrl] = useState<string | null>(null);
+  const [originalVideoRendering, setOriginalVideoRendering] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    setOriginalVideoRendering(true);
+    setOriginalVideoUrl(null);
+
+    fetch('/api/render', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ manim_code, scene_name: 'GeneratedScene' }),
+    })
+      .then((r) => r.json())
+      .then((data) => {
+        if (!cancelled) setOriginalVideoUrl(data.video_url ?? getVideoSrc(manim_code));
+      })
+      .catch(() => {
+        if (!cancelled) setOriginalVideoUrl(getVideoSrc(manim_code));
+      })
+      .finally(() => {
+        if (!cancelled) setOriginalVideoRendering(false);
+      });
+
+    return () => { cancelled = true; };
+  }, [manim_code]);
 
   const [clarifications, setClarifications] = useState<Clarification[]>([]);
   const [followUp, setFollowUp] = useState('');
@@ -247,14 +272,20 @@ export default function ResultScreen({ manim_code, explanation, confidenceScore,
           <h2 className="text-white text-xl font-semibold">Animation Preview</h2>
           <p className="text-zinc-400 text-sm">Pre-rendered output of this concept.</p>
           <div className="bg-zinc-900 rounded-xl overflow-hidden flex items-center justify-center min-h-64">
-            <video
-              key={originalVideoUrl}
-              src={originalVideoUrl}
-              controls
-              autoPlay
-              muted
-              className="w-full h-full object-contain rounded-xl"
-            />
+            {originalVideoRendering ? (
+              <p className="text-zinc-400 text-sm animate-pulse">Rendering animation…</p>
+            ) : originalVideoUrl ? (
+              <video
+                key={originalVideoUrl}
+                src={originalVideoUrl}
+                controls
+                autoPlay
+                muted
+                className="w-full h-full object-contain rounded-xl"
+              />
+            ) : (
+              <p className="text-zinc-500 text-sm">Video unavailable</p>
+            )}
           </div>
 
           <ConfidenceWidget
