@@ -13,6 +13,9 @@ export default function Home() {
   const [confidenceScore, setConfidenceScore] = useState<number | null>(null);
   const [confidenceReason, setConfidenceReason] = useState<string>('');
   const [confidenceFlag, setConfidenceFlag] = useState<boolean>(false);
+  const [conceptName, setConceptName] = useState<string | null>(null);
+  const [resourceUrl, setResourceUrl] = useState<string | null>(null);
+  const [resourceTitle, setResourceTitle] = useState<string | null>(null);
 
   function handleResult(
     code: string,
@@ -20,12 +23,18 @@ export default function Home() {
     score: number | null,
     reason: string,
     flag: boolean,
+    concept: string | null,
+    url: string | null,
+    title: string | null,
   ) {
     setManimCode(code);
     setExplanation(exp);
     setConfidenceScore(score);
     setConfidenceReason(reason);
     setConfidenceFlag(flag);
+    setConceptName(concept);
+    setResourceUrl(url);
+    setResourceTitle(title);
     setState('result');
   }
 
@@ -35,6 +44,9 @@ export default function Home() {
     setConfidenceScore(null);
     setConfidenceReason('');
     setConfidenceFlag(false);
+    setConceptName(null);
+    setResourceUrl(null);
+    setResourceTitle(null);
     setState('upload');
   }
 
@@ -46,6 +58,9 @@ export default function Home() {
         confidenceScore={confidenceScore}
         confidenceReason={confidenceReason}
         confidenceFlag={confidenceFlag}
+        conceptName={conceptName}
+        resourceUrl={resourceUrl}
+        resourceTitle={resourceTitle}
         onReset={handleReset}
       />
     );

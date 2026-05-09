@@ -9,6 +9,9 @@ interface UploadScreenProps {
     confidence_score: number | null,
     confidence_reason: string,
     confidence_flag: boolean,
+    concept_name: string | null,
+    resource_url: string | null,
+    resource_title: string | null,
   ) => void;
 }
 
@@ -53,6 +56,9 @@ export default function UploadScreen({ onResult }: UploadScreenProps) {
         data.confidence_score ?? null,
         data.confidence_reason ?? '',
         data.confidence_flag ?? false,
+        data.concept_name ?? null,
+        data.resource_url ?? null,
+        data.resource_title ?? null,
       );
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong');

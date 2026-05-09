@@ -18,4 +18,6 @@ Requirements:
 - Every object must be added to the scene before animating it
 - The very first line of your Python script must be a comment in this exact format:
   # CONCEPT: <one sentence describing the mathematical concept being animated>
+- The very second line of your Python script must be a comment in this exact format:
+  # CONCEPT_NAME: <standard academic name exactly as it would appear in a university calculus textbook index; under 8 words; canonical terminology only; examples: 'epsilon-delta definition of continuity', 'product rule for derivatives', 'Riemann sum definition of the integral'>
 - Return ONLY raw Python code, no markdown, no explanation, no code fences

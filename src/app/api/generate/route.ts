@@ -54,9 +54,10 @@ export async function POST(request: NextRequest) {
     const textBlock = message.content.find((b) => b.type === 'text');
     const manim_code = textBlock && textBlock.type === 'text' ? textBlock.text : '';
     const explanation = manim_code.match(/^# CONCEPT: (.+)$/m)?.[1] ?? '';
+    const concept_name = manim_code.match(/^# CONCEPT_NAME: (.+)$/m)?.[1] ?? null;
 
+    // Confidence check
     const confidenceFallback = { score: null, reason: 'Confidence check unavailable', flag: false };
-
     let confidence_score: number | null = confidenceFallback.score;
     let confidence_reason: string = confidenceFallback.reason;
     let confidence_flag: boolean = confidenceFallback.flag;
@@ -93,7 +94,50 @@ export async function POST(request: NextRequest) {
       // leave fallback values in place
     }
 
-    return Response.json({ manim_code, explanation, confidence_score, confidence_reason, confidence_flag });
+    // Tavily source search
+    let resource_url: string | null = null;
+    let resource_title: string | null = null;
+
+    if (concept_name) {
+      try {
+        const tavilyRes = await fetch('https://api.tavily.com/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            api_key: process.env.TAVILY_API_KEY,
+            query: `${concept_name} mathematics explained`,
+            search_depth: 'basic',
+            max_results: 5,
+            include_domains: [
+              'khanacademy.org',
+              'ocw.mit.edu',
+              'tutorial.math.lamar.edu',
+              'youtube.com',
+            ],
+          }),
+        });
+        const tavilyData = await tavilyRes.json();
+        const firstResult = (tavilyData.results as { url?: string; title?: string }[] | undefined)
+          ?.find((r) => r.url && r.title);
+        if (firstResult) {
+          resource_url = firstResult.url ?? null;
+          resource_title = firstResult.title ?? null;
+        }
+      } catch {
+        // leave nulls
+      }
+    }
+
+    return Response.json({
+      manim_code,
+      explanation,
+      confidence_score,
+      confidence_reason,
+      confidence_flag,
+      concept_name,
+      resource_url,
+      resource_title,
+    });
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error';
     return Response.json({ error: message }, { status: 500 });

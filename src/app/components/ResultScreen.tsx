@@ -8,6 +8,9 @@ interface ResultScreenProps {
   confidenceScore: number | null;
   confidenceReason: string;
   confidenceFlag: boolean;
+  conceptName: string | null;
+  resourceUrl: string | null;
+  resourceTitle: string | null;
   onReset: () => void;
 }
 
@@ -116,7 +119,52 @@ function ConfidenceWidget({
   );
 }
 
-export default function ResultScreen({ manim_code, explanation, confidenceScore, confidenceReason, confidenceFlag, onReset }: ResultScreenProps) {
+function SourceCard({
+  conceptName,
+  resourceUrl,
+  resourceTitle,
+}: {
+  conceptName: string | null;
+  resourceUrl: string | null;
+  resourceTitle: string | null;
+}) {
+  if (!conceptName) return null;
+
+  return (
+    <div className="border-l-4 border-blue-500 bg-slate-800/60 rounded-xl p-4 flex flex-col gap-3">
+      <div className="flex flex-col gap-0.5">
+        <span className="text-zinc-400 text-xs">Claude identified this concept as:</span>
+        <p className="text-white text-sm font-medium">{conceptName}</p>
+      </div>
+
+      {!resourceUrl ? (
+        <p className="text-zinc-500 text-xs">
+          Claude identified concept as {conceptName}. No verified reference found for this topic.
+        </p>
+      ) : (
+        <>
+          <div className="border-t border-zinc-700" />
+          <div className="flex flex-col gap-1.5">
+            <span className="text-zinc-400 text-xs">Cross-check with a verified source:</span>
+            <a
+              href={resourceUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-400 hover:text-blue-300 text-sm font-medium transition-colors"
+            >
+              {resourceTitle} →
+            </a>
+            <p className="text-zinc-500 text-xs italic">
+              Results from Khan Academy, MIT OpenCourseWare, Paul&apos;s Online Math Notes, or 3Blue1Brown only.
+            </p>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+export default function ResultScreen({ manim_code, explanation, confidenceScore, confidenceReason, confidenceFlag, conceptName, resourceUrl, resourceTitle, onReset }: ResultScreenProps) {
   const originalVideoUrl = getVideoSrc(manim_code);
 
   const [clarifications, setClarifications] = useState<Clarification[]>([]);
@@ -213,6 +261,12 @@ export default function ResultScreen({ manim_code, explanation, confidenceScore,
             confidenceScore={confidenceScore}
             confidenceReason={confidenceReason}
             confidenceFlag={confidenceFlag}
+          />
+
+          <SourceCard
+            conceptName={conceptName}
+            resourceUrl={resourceUrl}
+            resourceTitle={resourceTitle}
           />
 
           <div className="flex flex-col gap-2">
