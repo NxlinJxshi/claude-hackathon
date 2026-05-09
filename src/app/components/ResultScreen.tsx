@@ -155,7 +155,7 @@ function SourceCard({
               {resourceTitle} →
             </a>
             <p className="text-zinc-500 text-xs italic">
-              Results from Khan Academy, MIT OpenCourseWare, Paul&apos;s Online Math Notes, or 3Blue1Brown only.
+              Results from Khan Academy, MIT OpenCourseWare, or Paul&apos;s Online Math Notes only.
             </p>
           </div>
         </>

@@ -112,7 +112,6 @@ export async function POST(request: NextRequest) {
               'khanacademy.org',
               'ocw.mit.edu',
               'tutorial.math.lamar.edu',
-              'youtube.com',
             ],
           }),
         });
