@@ -3,7 +3,13 @@
 import { useState, useRef } from 'react';
 
 interface UploadScreenProps {
-  onResult: (manim_code: string, explanation: string) => void;
+  onResult: (
+    manim_code: string,
+    explanation: string,
+    confidence_score: number | null,
+    confidence_reason: string,
+    confidence_flag: boolean,
+  ) => void;
 }
 
 export default function UploadScreen({ onResult }: UploadScreenProps) {
@@ -41,7 +47,13 @@ export default function UploadScreen({ onResult }: UploadScreenProps) {
         throw new Error(data.error ?? 'Request failed');
       }
 
-      onResult(data.manim_code, data.explanation ?? '');
+      onResult(
+        data.manim_code,
+        data.explanation ?? '',
+        data.confidence_score ?? null,
+        data.confidence_reason ?? '',
+        data.confidence_flag ?? false,
+      );
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong');
     } finally {

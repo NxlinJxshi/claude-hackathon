@@ -5,6 +5,9 @@ import { useState } from 'react';
 interface ResultScreenProps {
   manim_code: string;
   explanation: string;
+  confidenceScore: number | null;
+  confidenceReason: string;
+  confidenceFlag: boolean;
   onReset: () => void;
 }
 
@@ -20,7 +23,7 @@ function getVideoSrc(code: string): string {
   return '/animations/continuity.mp4';
 }
 
-export default function ResultScreen({ manim_code, explanation, onReset }: ResultScreenProps) {
+export default function ResultScreen({ manim_code, explanation, confidenceScore, confidenceReason, confidenceFlag, onReset }: ResultScreenProps) {
   const originalVideoUrl = getVideoSrc(manim_code);
 
   const [clarifications, setClarifications] = useState<Clarification[]>([]);
@@ -102,7 +105,7 @@ export default function ResultScreen({ manim_code, explanation, onReset }: Resul
         <div className="flex flex-col gap-3">
           <h2 className="text-white text-xl font-semibold">Animation Preview</h2>
           <p className="text-zinc-400 text-sm">Pre-rendered output of this concept.</p>
-          <div className="bg-zinc-900 rounded-xl overflow-hidden flex items-center justify-center min-h-64">
+          <div className={`bg-zinc-900 rounded-xl overflow-hidden flex items-center justify-center min-h-64 ${confidenceFlag ? 'ring-2 ring-yellow-400' : ''}`}>
             <video
               key={originalVideoUrl}
               src={originalVideoUrl}
@@ -112,6 +115,23 @@ export default function ResultScreen({ manim_code, explanation, onReset }: Resul
               className="w-full h-full object-contain rounded-xl"
             />
           </div>
+
+          {confidenceScore !== null && !confidenceFlag && (
+            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-green-950 border border-green-700">
+              <span className="w-2 h-2 rounded-full bg-green-400 shrink-0" />
+              <p className="text-green-300 text-xs font-medium">Claude is confident in this explanation</p>
+            </div>
+          )}
+
+          {confidenceScore !== null && confidenceFlag && (
+            <div className="flex flex-col gap-1 px-3 py-2 rounded-lg bg-yellow-950 border border-yellow-600">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-yellow-400 shrink-0" />
+                <p className="text-yellow-300 text-xs font-medium">Claude is not fully confident — verify with a textbook or teacher</p>
+              </div>
+              <p className="text-zinc-400 text-xs pl-4">{confidenceReason}</p>
+            </div>
+          )}
 
           <div className="flex flex-col gap-2 mt-1">
             <label className="text-zinc-300 text-sm font-medium">
