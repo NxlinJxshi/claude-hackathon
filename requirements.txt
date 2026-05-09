@@ -1,0 +1,17 @@
+# Python dependencies for ManimAI
+# Requires Python 3.12+ (arm64 on Apple Silicon)
+#
+# Install with:
+#   pip install -r requirements.txt
+#
+# macOS (Homebrew) prerequisites before pip-installing:
+#   brew install cairo pango ffmpeg
+#
+# Then install with the correct Python:
+#   /opt/homebrew/bin/python3.12 -m pip install -r requirements.txt
+#
+# The render API (src/app/api/render/route.ts) invokes:
+#   /opt/homebrew/bin/python3.12 -m manim ...
+# If your Python lives elsewhere, update that path in the route file.
+
+manim>=0.20.1
