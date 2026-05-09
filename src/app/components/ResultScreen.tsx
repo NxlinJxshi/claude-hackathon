@@ -23,6 +23,99 @@ function getVideoSrc(code: string): string {
   return '/animations/continuity.mp4';
 }
 
+function ConfidenceWidget({
+  confidenceScore,
+  confidenceReason,
+}: {
+  confidenceScore: number | null;
+  confidenceReason: string;
+  confidenceFlag: boolean;
+}) {
+  const [popupOpen, setPopupOpen] = useState(false);
+
+  if (confidenceScore === null) return null;
+
+  const pct = ((confidenceScore - 1) / 4) * 100;
+
+  const colorFill =
+    confidenceScore <= 2 ? 'bg-red-400' :
+    confidenceScore === 3 ? 'bg-yellow-400' :
+    'bg-green-400';
+
+  const colorText =
+    confidenceScore <= 2 ? 'text-red-400' :
+    confidenceScore === 3 ? 'text-yellow-400' :
+    'text-green-400';
+
+  return (
+    <div className="flex flex-col gap-3 bg-zinc-900 rounded-xl p-4">
+      <div className="flex items-center gap-1.5">
+        <span className="text-zinc-400 text-sm font-medium">Animation Confidence</span>
+        <div className="relative">
+          <button
+            onClick={() => setPopupOpen(true)}
+            className="w-5 h-5 rounded-full bg-zinc-700 hover:bg-zinc-600 text-zinc-300 text-xs flex items-center justify-center transition-colors"
+            aria-label="How this score is calculated"
+          >
+            ⓘ
+          </button>
+          {popupOpen && (
+            <>
+              <div className="fixed inset-0 z-10" onClick={() => setPopupOpen(false)} />
+              <div className="absolute z-20 bottom-full left-0 mb-2 w-72 bg-white rounded-xl shadow-xl p-4 flex flex-col gap-3">
+                <div className="flex items-start justify-between gap-2">
+                  <h3 className="text-sm font-semibold text-zinc-900">How this score is calculated</h3>
+                  <button
+                    onClick={() => setPopupOpen(false)}
+                    className="text-zinc-400 hover:text-zinc-600 text-xl leading-none shrink-0"
+                  >
+                    ×
+                  </button>
+                </div>
+                <p className="text-xs text-zinc-600 leading-relaxed">
+                  After generating the animation, Claude runs a second review pass. It re-reads the original screenshot, the generated Manim code, and the explanation, then estimates how accurately the code represents the concept shown. The score reflects Claude&apos;s assessment of its own output — it is not a mathematical proof of correctness, and it does not execute the code. A score of 4 or 5 means the code appears consistent with the screenshot. A score of 3 or below means there may be a mismatch worth verifying with a textbook or teacher.
+                </p>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-1">
+        <div className="relative h-5">
+          <span
+            className={`absolute -translate-x-1/2 text-xs font-bold ${colorText}`}
+            style={{ left: `${pct}%` }}
+          >
+            {confidenceScore.toFixed(1)}
+          </span>
+        </div>
+
+        <div className="relative h-2 bg-zinc-700 rounded-full">
+          <div
+            className={`absolute left-0 top-0 h-full rounded-full ${colorFill}`}
+            style={{ width: `${pct}%` }}
+          />
+          <div
+            className={`absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-4 h-4 rounded-full border-2 border-zinc-900 ${colorFill}`}
+            style={{ left: `${pct}%` }}
+          />
+        </div>
+
+        <div className="flex justify-between mt-1">
+          <span className="text-zinc-500 text-xs">Low confidence</span>
+          <span className="text-zinc-500 text-xs">High confidence</span>
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-0.5">
+        <span className="text-zinc-500 text-xs">Claude&apos;s assessment:</span>
+        <p className="text-zinc-400 text-xs italic">{confidenceReason}</p>
+      </div>
+    </div>
+  );
+}
+
 export default function ResultScreen({ manim_code, explanation, confidenceScore, confidenceReason, confidenceFlag, onReset }: ResultScreenProps) {
   const originalVideoUrl = getVideoSrc(manim_code);
 
@@ -105,7 +198,7 @@ export default function ResultScreen({ manim_code, explanation, confidenceScore,
         <div className="flex flex-col gap-3">
           <h2 className="text-white text-xl font-semibold">Animation Preview</h2>
           <p className="text-zinc-400 text-sm">Pre-rendered output of this concept.</p>
-          <div className={`bg-zinc-900 rounded-xl overflow-hidden flex items-center justify-center min-h-64 ${confidenceFlag ? 'ring-2 ring-yellow-400' : ''}`}>
+          <div className="bg-zinc-900 rounded-xl overflow-hidden flex items-center justify-center min-h-64">
             <video
               key={originalVideoUrl}
               src={originalVideoUrl}
@@ -116,24 +209,13 @@ export default function ResultScreen({ manim_code, explanation, confidenceScore,
             />
           </div>
 
-          {confidenceScore !== null && !confidenceFlag && (
-            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-green-950 border border-green-700">
-              <span className="w-2 h-2 rounded-full bg-green-400 shrink-0" />
-              <p className="text-green-300 text-xs font-medium">Claude is confident in this explanation</p>
-            </div>
-          )}
+          <ConfidenceWidget
+            confidenceScore={confidenceScore}
+            confidenceReason={confidenceReason}
+            confidenceFlag={confidenceFlag}
+          />
 
-          {confidenceScore !== null && confidenceFlag && (
-            <div className="flex flex-col gap-1 px-3 py-2 rounded-lg bg-yellow-950 border border-yellow-600">
-              <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-yellow-400 shrink-0" />
-                <p className="text-yellow-300 text-xs font-medium">Claude is not fully confident — verify with a textbook or teacher</p>
-              </div>
-              <p className="text-zinc-400 text-xs pl-4">{confidenceReason}</p>
-            </div>
-          )}
-
-          <div className="flex flex-col gap-2 mt-1">
+          <div className="flex flex-col gap-2">
             <label className="text-zinc-300 text-sm font-medium">
               What&apos;s unclear? Ask for a deeper explanation.
             </label>
