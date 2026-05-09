@@ -1,26 +1,90 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #0b1014;
+  --bg-2: #0e141a;
+  --panel: #11181f;
+  --panel-2: #0a1015;
+  --rule: #1c2730;
+  --rule-2: #2a3a45;
+  --ink: #e6eef4;
+  --ink-2: #b0bcc6;
+  --ink-3: #6f8090;
+  --ink-4: #4a5867;
+  --accent: #7fc4ff;
+  --accent-2: #a7d8ff;
+  --accent-soft: rgba(127, 196, 255, 0.14);
+  --good: #5fbf7e;
+  --warn: #e1b545;
+  --bad: #e07b62;
+  --grid: 14px;
+
+  --mono: var(--font-geist-mono), ui-monospace, "JetBrains Mono", monospace;
+  --serif: var(--font-newsreader), Georgia, "Times New Roman", serif;
+  --sans: var(--font-geist-sans), system-ui, sans-serif;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-background: var(--bg);
+  --color-foreground: var(--ink);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-serif: var(--font-newsreader);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html, body {
+  margin: 0;
+  padding: 0;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--mono);
+  font-feature-settings: "ss01", "cv01", "cv11";
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(214, 232, 248, 0.04) 1px, transparent 0);
+  background-size: var(--grid) var(--grid);
+  background-attachment: fixed;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: geometricPrecision;
+  min-height: 100vh;
+}
+
+::selection {
+  background: var(--accent-soft);
+  color: var(--ink);
+}
+
+@keyframes shimmer {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes blink {
+  50% { opacity: 0; }
+}
+
+@keyframes fadein {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes scenefade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes loaderpulse {
+  0%, 100% { width: 22%; }
+  50%      { width: 78%; }
+}
+
+.fade-in { animation: fadein 0.35s ease both; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+  }
 }
